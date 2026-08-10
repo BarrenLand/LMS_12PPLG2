@@ -1,0 +1,6 @@
+{
+  "name": "Golang LMS Platform",
+  "description": "Learning Management System featuring Admin class management, Teacher task & scoring controls, Student GDrive submissions, and Golang backend architecture exporter.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

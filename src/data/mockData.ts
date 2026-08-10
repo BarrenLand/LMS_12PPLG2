@@ -1,0 +1,286 @@
+import { User, Class, StudyMaterial, Task, TaskSubmission, ForumPost } from '../types';
+
+export const INITIAL_USERS: User[] = [
+  {
+    id: 'usr-admin-1',
+    name: 'Alex Rivera (System Admin)',
+    email: 'admin@school.edu',
+    role: 'admin',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    classIds: [],
+    createdAt: '2026-01-10T08:00:00Z',
+  },
+  {
+    id: 'usr-teacher-1',
+    name: 'Prof. Robert Chen',
+    email: 'robert.chen@school.edu',
+    role: 'teacher',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    classIds: ['cls-golang-101', 'cls-db-201'],
+    createdAt: '2026-01-12T09:00:00Z',
+  },
+  {
+    id: 'usr-teacher-2',
+    name: 'Dr. Sarah Jenkins',
+    email: 'sarah.j@school.edu',
+    role: 'teacher',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    classIds: ['cls-web-102'],
+    createdAt: '2026-01-15T10:00:00Z',
+  },
+  {
+    id: 'usr-student-1',
+    name: 'Daniel Santos',
+    email: 'daniel.santos@student.edu',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+    classIds: ['cls-golang-101', 'cls-web-102'],
+    createdAt: '2026-02-01T11:00:00Z',
+  },
+  {
+    id: 'usr-student-2',
+    name: 'Maya Lin',
+    email: 'maya.lin@student.edu',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    classIds: ['cls-golang-101', 'cls-db-201'],
+    createdAt: '2026-02-02T12:00:00Z',
+  },
+  {
+    id: 'usr-student-3',
+    name: 'Ethan Hunt',
+    email: 'ethan.h@student.edu',
+    role: 'student',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    classIds: ['cls-web-102'],
+    createdAt: '2026-02-03T14:00:00Z',
+  }
+];
+
+export const INITIAL_CLASSES: Class[] = [
+  {
+    id: 'cls-golang-101',
+    name: 'Golang Backend Architecture',
+    code: 'CS-GO101',
+    teacherId: 'usr-teacher-1',
+    description: 'Master building scalable backend microservices, REST APIs, and concurrency using Go language.',
+    studentIds: ['usr-student-1', 'usr-student-2'],
+    createdAt: '2026-01-15T08:00:00Z',
+  },
+  {
+    id: 'cls-db-201',
+    name: 'Database Design & SQL Optimization',
+    code: 'CS-DB201',
+    teacherId: 'usr-teacher-1',
+    description: 'Relational data modeling, PostgreSQL indexing, query optimization, and GORM ORM integration.',
+    studentIds: ['usr-student-2'],
+    createdAt: '2026-01-16T08:00:00Z',
+  },
+  {
+    id: 'cls-web-102',
+    name: 'Modern Full-Stack Web Development',
+    code: 'CS-WEB102',
+    teacherId: 'usr-teacher-2',
+    description: 'Building responsive web interfaces, state management, and connecting RESTful APIs.',
+    studentIds: ['usr-student-1', 'usr-student-3'],
+    createdAt: '2026-01-18T08:00:00Z',
+  },
+];
+
+export const INITIAL_MATERIALS: StudyMaterial[] = [
+  {
+    id: 'mat-1',
+    title: 'Go Goroutines & Channel Concurrency Patterns',
+    description: 'Comprehensive guide to worker pools, context cancellation, and thread safety in Go.',
+    classId: 'cls-golang-101',
+    authorId: 'usr-teacher-1',
+    type: 'pdf',
+    url: 'https://go.dev/doc/effective_go',
+    createdAt: '2026-02-10T09:30:00Z',
+  },
+  {
+    id: 'mat-2',
+    title: 'Building RESTful APIs with Gin & Fiber Frameworks',
+    description: 'Lecture slides covering middleware routing, JSON serialization, and error handling.',
+    classId: 'cls-golang-101',
+    authorId: 'usr-teacher-1',
+    type: 'doc',
+    url: 'https://gin-gonic.com/docs/',
+    createdAt: '2026-02-12T11:00:00Z',
+  },
+  {
+    id: 'mat-3',
+    title: 'PostgreSQL Indexing & Execution Plans',
+    description: 'Deep dive into B-Trees, Hash indexes, and EXPLAIN ANALYZE for query tuning.',
+    classId: 'cls-db-201',
+    authorId: 'usr-teacher-1',
+    type: 'pdf',
+    url: 'https://www.postgresql.org/docs/current/indexes.html',
+    createdAt: '2026-02-14T14:15:00Z',
+  },
+  {
+    id: 'mat-4',
+    title: 'React 19 & Tailwind UI Architecture Guide',
+    description: 'Best practices for modular component design and responsive UI layouts.',
+    classId: 'cls-web-102',
+    authorId: 'usr-teacher-2',
+    type: 'link',
+    url: 'https://tailwindcss.com/docs',
+    createdAt: '2026-02-15T10:00:00Z',
+  },
+];
+
+export const INITIAL_TASKS: Task[] = [
+  {
+    id: 'task-1',
+    title: 'Assignment 1: Build a Go REST API for User Auth',
+    instructions: 'Implement JWT authentication, password hashing with bcrypt, and SQLite storage in Go. Upload your source code zip or folder to Google Drive and submit the shared view link.',
+    classId: 'cls-golang-101',
+    teacherId: 'usr-teacher-1',
+    maxScore: 100,
+    dueDate: '2026-08-15T23:59:00Z',
+    createdAt: '2026-02-10T10:00:00Z',
+  },
+  {
+    id: 'task-2',
+    title: 'Assignment 2: Golang Concurrent Web Crawler',
+    instructions: 'Write a CLI program using Goroutines and Channels to crawl 5 pages concurrently with context timeout. Submit your Google Drive link containing the `.go` files and output logs.',
+    classId: 'cls-golang-101',
+    teacherId: 'usr-teacher-1',
+    maxScore: 100,
+    dueDate: '2026-08-25T23:59:00Z',
+    createdAt: '2026-02-18T10:00:00Z',
+  },
+  {
+    id: 'task-3',
+    title: 'Database Schema Design for LMS Platform',
+    instructions: 'Draw an ER diagram and write DDL SQL scripts for Users, Classes, Tasks, and Submissions. Share your Google Drive PDF link.',
+    classId: 'cls-db-201',
+    teacherId: 'usr-teacher-1',
+    maxScore: 100,
+    dueDate: '2026-08-20T23:59:00Z',
+    createdAt: '2026-02-12T14:00:00Z',
+  },
+];
+
+export const INITIAL_SUBMISSIONS: TaskSubmission[] = [
+  {
+    id: 'sub-1',
+    taskId: 'task-1',
+    studentId: 'usr-student-1',
+    gdriveUrl: 'https://drive.google.com/file/d/1A2b3C4d5E6f7G8h9I0j_GolangAuth/view?usp=sharing',
+    note: 'Here is my complete solution with GORM models, unit test suite, and Postman collection.',
+    submittedAt: '2026-02-14T16:45:00Z',
+    score: 95,
+    feedback: 'Excellent clean code structure! Your JWT token expiration handler and unit tests were top-notch.',
+  },
+  {
+    id: 'sub-2',
+    taskId: 'task-1',
+    studentId: 'usr-student-2',
+    gdriveUrl: 'https://drive.google.com/drive/folders/1MayaLin_Golang_Assignment1_Repo?usp=sharing',
+    note: 'Added comments in main.go and Makefile for execution instructions.',
+    submittedAt: '2026-02-14T20:10:00Z',
+    score: 88,
+    feedback: 'Good implementation. Remember to handle database connection retries on boot.',
+  },
+];
+
+export const INITIAL_FORUMS: ForumPost[] = [
+  {
+    id: 'post-1',
+    title: 'Welcome to Golang Backend Architecture! Ask questions here',
+    content: 'Hello everyone! Please use this forum thread to post any questions regarding Golang concurrency, HTTP handlers, or assignment requirements.',
+    classId: 'cls-golang-101',
+    authorId: 'usr-teacher-1',
+    isPinned: true,
+    createdAt: '2026-02-05T09:00:00Z',
+    comments: [
+      {
+        id: 'cmt-1',
+        authorId: 'usr-student-1',
+        content: 'Excited for this class! Is it recommended to use Gin or Fiber for our assignments?',
+        createdAt: '2026-02-05T10:15:00Z',
+      },
+      {
+        id: 'cmt-2',
+        authorId: 'usr-teacher-1',
+        content: 'Both are great! We cover Gin in the main slides, but Fiber is also fully accepted.',
+        createdAt: '2026-02-05T10:30:00Z',
+      },
+      {
+        id: 'cmt-3',
+        authorId: 'usr-student-2',
+        content: 'Thanks Professor! How should we format our Google Drive submission links?',
+        createdAt: '2026-02-06T11:00:00Z',
+      },
+    ],
+  },
+  {
+    id: 'post-2',
+    title: 'Tips for Google Drive link sharing settings',
+    content: 'When submitting task solutions, please make sure your Google Drive link access is set to "Anyone with the link can view" so teachers can grade your code promptly.',
+    classId: 'cls-golang-101',
+    authorId: 'usr-teacher-1',
+    isPinned: false,
+    createdAt: '2026-02-12T14:00:00Z',
+    comments: [],
+  },
+];
+
+export const INITIAL_ATTENDANCE_SESSIONS = [
+  {
+    id: 'att-sess-1',
+    classId: 'cls-golang-101',
+    title: 'Session 1: Go Basics & Syntax',
+    date: '2026-07-28',
+    startTime: '08:00',
+    endTime: '10:00',
+    isOpen: false,
+    createdBy: 'usr-teacher-1',
+    createdAt: '2026-07-28T08:00:00Z',
+  },
+  {
+    id: 'att-sess-2',
+    classId: 'cls-golang-101',
+    title: 'Session 2: Goroutines, Channels & Gin Framework',
+    date: new Date().toISOString().split('T')[0],
+    startTime: '08:00',
+    endTime: '23:59',
+    isOpen: true,
+    createdBy: 'usr-teacher-1',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'att-sess-3',
+    classId: 'cls-web-102',
+    title: 'Session 1: React 19 & Tailwind CSS Layouts',
+    date: new Date().toISOString().split('T')[0],
+    startTime: '10:00',
+    endTime: '23:59',
+    isOpen: true,
+    createdBy: 'usr-teacher-2',
+    createdAt: new Date().toISOString(),
+  }
+];
+
+export const INITIAL_ATTENDANCE_RECORDS = [
+  {
+    id: 'att-rec-1',
+    sessionId: 'att-sess-1',
+    studentId: 'usr-student-1',
+    status: 'present' as const,
+    checkInTime: '2026-07-28T08:05:00Z',
+    method: 'self_check_in' as const,
+    notes: 'Self check-in via student portal',
+  },
+  {
+    id: 'att-rec-2',
+    sessionId: 'att-sess-1',
+    studentId: 'usr-student-2',
+    status: 'present' as const,
+    checkInTime: '2026-07-28T08:02:00Z',
+    method: 'teacher_marked' as const,
+    notes: 'Marked present by Prof. Robert Chen',
+  },
+];
