@@ -12,8 +12,9 @@ import {
   LayoutDashboard,
   ChevronDown,
   RotateCcw,
-  Sparkles,
   LogOut,
+  School,
+  Database,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -25,6 +26,7 @@ export const Navbar: React.FC = () => {
     setActiveTab,
     resetData,
     logout,
+    mongoStatus,
   } = useLms();
 
   const [showRoleMenu, setShowRoleMenu] = useState(false);
@@ -33,20 +35,28 @@ export const Navbar: React.FC = () => {
     switch (role) {
       case 'admin':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
             <ShieldCheck className="w-3.5 h-3.5" /> Admin
           </span>
         );
+      case 'guru':
       case 'teacher':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-            <UserCheck className="w-3.5 h-3.5" /> Teacher
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            <UserCheck className="w-3.5 h-3.5" /> Guru
           </span>
         );
+      case 'wali_kelas':
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+            <School className="w-3.5 h-3.5" /> Wali Kelas
+          </span>
+        );
+      case 'murid':
       case 'student':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-            <GraduationCap className="w-3.5 h-3.5" /> Student
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+            <GraduationCap className="w-3.5 h-3.5" /> Murid
           </span>
         );
       default:
@@ -69,11 +79,26 @@ export const Navbar: React.FC = () => {
                   Go<span className="text-cyan-600 dark:text-cyan-400">LMS</span>
                 </span>
                 <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 font-semibold">
-                  Go 1.22 API
+                  Go 1.22 + Express API
+                </span>
+                <span
+                  title={
+                    mongoStatus.connected
+                      ? `MongoDB Connected (${mongoStatus.uri})`
+                      : `MongoDB Status: ${mongoStatus.error || 'Disconnected (Using Local DB)'}`
+                  }
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold flex items-center gap-1 ${
+                    mongoStatus.connected
+                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                      : 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+                  }`}
+                >
+                  <Database className="w-3 h-3" />
+                  {mongoStatus.connected ? 'MongoDB Live' : 'MongoDB Local'}
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                Golang Learning Platform
+                Sistem LMS Multi-Tier (Admin, Guru, Wali Kelas, Murid)
               </p>
             </div>
           </div>
@@ -91,9 +116,11 @@ export const Navbar: React.FC = () => {
               <LayoutDashboard className="w-4 h-4" />
               {currentUser.role === 'admin'
                 ? 'Admin Control'
-                : currentUser.role === 'teacher'
-                ? 'Teacher Dashboard'
-                : 'My Learning'}
+                : currentUser.role === 'wali_kelas'
+                ? 'Portal Wali Kelas'
+                : currentUser.role === 'guru' || currentUser.role === 'teacher'
+                ? 'Dashboard Guru'
+                : 'Portal Murid'}
             </button>
 
             {currentUser.role === 'admin' && (

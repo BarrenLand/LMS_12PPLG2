@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'teacher' | 'student';
+export type UserRole = 'admin' | 'guru' | 'wali_kelas' | 'murid' | 'teacher' | 'student';
 
 export interface User {
   id: string;
@@ -7,6 +7,7 @@ export interface User {
   role: UserRole;
   avatar: string;
   classIds: string[]; // Classes assigned to or enrolled in
+  homeroomClassId?: string; // Dedicated homeroom class assigned for 'wali_kelas'
   createdAt: string;
 }
 
@@ -15,6 +16,7 @@ export interface Class {
   name: string;
   code: string;
   teacherId: string;
+  homeroomTeacherId?: string; // Wali Kelas assigned to this class
   description: string;
   studentIds: string[];
   createdAt: string;

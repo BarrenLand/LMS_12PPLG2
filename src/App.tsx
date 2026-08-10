@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { TeacherDashboard } from './components/Teacher/TeacherDashboard';
 import { StudentDashboard } from './components/Student/StudentDashboard';
+import { WaliKelasDashboard } from './components/WaliKelas/WaliKelasDashboard';
 import { MaterialsView } from './components/Materials/MaterialsView';
 import { ForumView } from './components/Forum/ForumView';
 import { GolangExporterModal } from './components/GolangExporter/GolangExporterModal';
@@ -20,7 +21,8 @@ const MainContent: React.FC = () => {
     switch (activeTab) {
       case 'dashboard':
         if (currentUser.role === 'admin') return <AdminDashboard />;
-        if (currentUser.role === 'teacher') return <TeacherDashboard />;
+        if (currentUser.role === 'wali_kelas') return <WaliKelasDashboard />;
+        if (currentUser.role === 'guru' || currentUser.role === 'teacher') return <TeacherDashboard />;
         return <StudentDashboard />;
 
       case 'users':
@@ -30,7 +32,8 @@ const MainContent: React.FC = () => {
         return <MaterialsView />;
 
       case 'tasks':
-        if (currentUser.role === 'teacher') return <TeacherDashboard />;
+        if (currentUser.role === 'wali_kelas') return <WaliKelasDashboard />;
+        if (currentUser.role === 'guru' || currentUser.role === 'teacher') return <TeacherDashboard />;
         return <StudentDashboard />;
 
       case 'forum':

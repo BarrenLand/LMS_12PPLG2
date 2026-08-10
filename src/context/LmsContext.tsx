@@ -39,6 +39,11 @@ interface LmsContextType {
   selectedClassId: string;
   setSelectedClassId: (classId: string) => void;
 
+  // MongoDB Status & Sync
+  mongoStatus: { connected: boolean; uri?: string; counts?: any; error?: string };
+  syncWithMongoDB: () => Promise<void>;
+  seedMongoDB: () => Promise<void>;
+
   // Auth & User Actions
   login: (email: string, password?: string) => { success: boolean; message?: string };
   loginAsUser: (userId: string) => void;
@@ -153,6 +158,70 @@ export const LmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [selectedClassId, setSelectedClassId] = useState<string>('all');
+
+  const [mongoStatus, setMongoStatus] = useState<{
+    connected: boolean;
+    uri?: string;
+    counts?: any;
+    error?: string;
+  }>({ connected: false });
+
+  // MongoDB Status Poller
+  const checkMongoStatus = async () => {
+    try {
+      const res = await fetch('/api/mongodb/status');
+      if (res.ok) {
+        const data = await res.json();
+        setMongoStatus(data);
+      }
+    } catch {
+      setMongoStatus({ connected: false, error: 'Express server offline or initializing' });
+    }
+  };
+
+  useEffect(() => {
+    checkMongoStatus();
+    const timer = setInterval(checkMongoStatus, 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const syncWithMongoDB = async () => {
+    try {
+      const usersRes = await fetch('/api/users');
+      if (usersRes.ok) {
+        const dbUsers = await usersRes.json();
+        if (dbUsers.length > 0) setUsers(dbUsers);
+      }
+      const classesRes = await fetch('/api/classes');
+      if (classesRes.ok) {
+        const dbClasses = await classesRes.json();
+        if (dbClasses.length > 0) setClasses(dbClasses);
+      }
+      await checkMongoStatus();
+    } catch (e) {
+      console.error('Failed to fetch from MongoDB API:', e);
+    }
+  };
+
+  const seedMongoDB = async () => {
+    try {
+      const res = await fetch('/api/seed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          users,
+          classes,
+          attendanceSessions,
+          attendanceRecords,
+        }),
+      });
+      if (res.ok) {
+        await checkMongoStatus();
+      }
+    } catch (e) {
+      console.error('Seed MongoDB failed:', e);
+    }
+  };
 
   // Sync to LocalStorage
   useEffect(() => {
@@ -538,6 +607,9 @@ export const LmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setActiveTab,
         selectedClassId,
         setSelectedClassId,
+        mongoStatus,
+        syncWithMongoDB,
+        seedMongoDB,
         login,
         loginAsUser,
         logout,

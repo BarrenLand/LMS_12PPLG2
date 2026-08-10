@@ -32,10 +32,11 @@ export const LoginScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Group demo users by role
+  // Group demo users by role (supporting both Indonesian & legacy tags)
   const adminUsers = users.filter((u) => u.role === 'admin');
-  const teacherUsers = users.filter((u) => u.role === 'teacher');
-  const studentUsers = users.filter((u) => u.role === 'student');
+  const guruUsers = users.filter((u) => u.role === 'guru' || u.role === 'teacher');
+  const waliKelasUsers = users.filter((u) => u.role === 'wali_kelas');
+  const muridUsers = users.filter((u) => u.role === 'murid' || u.role === 'student');
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,20 +60,28 @@ export const LoginScreen: React.FC = () => {
     switch (role) {
       case 'admin':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-            <ShieldCheck className="w-3.5 h-3.5" /> System Admin
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+            <ShieldCheck className="w-3 h-3" /> Admin
           </span>
         );
+      case 'guru':
       case 'teacher':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-            <UserCheck className="w-3.5 h-3.5" /> Teacher / Instructor
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            <UserCheck className="w-3 h-3" /> Guru
           </span>
         );
+      case 'wali_kelas':
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+            <UserCheck className="w-3 h-3" /> Wali Kelas
+          </span>
+        );
+      case 'murid':
       case 'student':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-            <GraduationCap className="w-3.5 h-3.5" /> Student
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+            <GraduationCap className="w-3 h-3" /> Murid
           </span>
         );
     }
@@ -165,142 +174,176 @@ export const LoginScreen: React.FC = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* ADMIN CARD */}
-                <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-purple-500/50 transition group">
-                  <div className="space-y-4">
+                <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-purple-500/50 transition group">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       {getRoleBadge('admin')}
-                      <span className="text-[10px] font-mono text-purple-400">Level 1</span>
+                      <span className="text-[10px] font-mono text-purple-400 font-bold">Tier 1</span>
                     </div>
 
-                    <div className="space-y-3">
-                      {adminUsers.map((user) => (
-                        <div key={user.id} className="flex items-center gap-3">
+                    <div className="space-y-2">
+                      {adminUsers.slice(0, 1).map((user) => (
+                        <div key={user.id} className="flex items-center gap-2.5">
                           <img
                             src={user.avatar}
                             alt={user.name}
-                            className="w-12 h-12 rounded-full object-cover ring-2 ring-purple-500/40"
+                            className="w-10 h-10 rounded-full object-cover ring-2 ring-purple-500/40 shrink-0"
                           />
                           <div className="min-w-0">
-                            <p className="text-sm font-bold text-white truncate">{user.name}</p>
-                            <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                            <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                            <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <ul className="text-[11px] text-slate-400 space-y-1.5 pt-2 border-t border-slate-800/80">
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-purple-400 shrink-0" /> Create & manage all user accounts
+                    <ul className="text-[10px] text-slate-400 space-y-1 pt-2 border-t border-slate-800/80">
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3 h-3 text-purple-400 shrink-0" /> User & class management
                       </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-purple-400 shrink-0" /> Assign teachers to academic classes
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-purple-400 shrink-0" /> Full Golang REST API & DB schema view
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3 h-3 text-purple-400 shrink-0" /> Full MongoDB status & seed
                       </li>
                     </ul>
                   </div>
 
                   <button
                     onClick={() => loginAsUser(adminUsers[0]?.id || 'usr-admin-1')}
-                    className="mt-5 w-full py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 group-hover:scale-[1.02]"
+                    className="mt-4 w-full py-2 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-lg shadow-purple-600/20 group-hover:scale-[1.02]"
                   >
-                    <span>Log In as Admin</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>Masuk Admin</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                {/* TEACHER CARD */}
-                <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-emerald-500/50 transition group">
-                  <div className="space-y-4">
+                {/* GURU CARD */}
+                <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-emerald-500/50 transition group">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      {getRoleBadge('teacher')}
-                      <span className="text-[10px] font-mono text-emerald-400">Level 2</span>
+                      {getRoleBadge('guru')}
+                      <span className="text-[10px] font-mono text-emerald-400 font-bold">Tier 2</span>
                     </div>
 
-                    <div className="space-y-3">
-                      {teacherUsers.slice(0, 1).map((user) => (
-                        <div key={user.id} className="flex items-center gap-3">
+                    <div className="space-y-2">
+                      {guruUsers.slice(0, 1).map((user) => (
+                        <div key={user.id} className="flex items-center gap-2.5">
                           <img
                             src={user.avatar}
                             alt={user.name}
-                            className="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-500/40"
+                            className="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-500/40 shrink-0"
                           />
                           <div className="min-w-0">
-                            <p className="text-sm font-bold text-white truncate">{user.name}</p>
-                            <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                            <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                            <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <ul className="text-[11px] text-slate-400 space-y-1.5 pt-2 border-t border-slate-800/80">
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Publish coursework & materials
+                    <ul className="text-[10px] text-slate-400 space-y-1 pt-2 border-t border-slate-800/80">
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3 h-3 text-emerald-400 shrink-0" /> Upload tugas & materi
                       </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Grade student GDrive submissions
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> Post forum announcements & answers
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3 h-3 text-emerald-400 shrink-0" /> Penilaian & absensi kelas
                       </li>
                     </ul>
                   </div>
 
                   <button
-                    onClick={() => loginAsUser(teacherUsers[0]?.id || 'usr-teacher-1')}
-                    className="mt-5 w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 group-hover:scale-[1.02]"
+                    onClick={() => loginAsUser(guruUsers[0]?.id || 'usr-teacher-1')}
+                    className="mt-4 w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/20 group-hover:scale-[1.02]"
                   >
-                    <span>Log In as Teacher</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>Masuk Guru</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                {/* STUDENT CARD */}
-                <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-blue-500/50 transition group">
-                  <div className="space-y-4">
+                {/* WALI KELAS CARD */}
+                <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-amber-500/50 transition group">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      {getRoleBadge('student')}
-                      <span className="text-[10px] font-mono text-blue-400">Level 3</span>
+                      {getRoleBadge('wali_kelas')}
+                      <span className="text-[10px] font-mono text-amber-400 font-bold">Tier 3</span>
                     </div>
 
-                    <div className="space-y-3">
-                      {studentUsers.slice(0, 1).map((user) => (
-                        <div key={user.id} className="flex items-center gap-3">
+                    <div className="space-y-2">
+                      {waliKelasUsers.slice(0, 1).map((user) => (
+                        <div key={user.id} className="flex items-center gap-2.5">
                           <img
                             src={user.avatar}
                             alt={user.name}
-                            className="w-12 h-12 rounded-full object-cover ring-2 ring-blue-500/40"
+                            className="w-10 h-10 rounded-full object-cover ring-2 ring-amber-500/40 shrink-0"
                           />
                           <div className="min-w-0">
-                            <p className="text-sm font-bold text-white truncate">{user.name}</p>
-                            <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                            <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                            <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <ul className="text-[11px] text-slate-400 space-y-1.5 pt-2 border-t border-slate-800/80">
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" /> Submit Google Drive task links
+                    <ul className="text-[10px] text-slate-400 space-y-1 pt-2 border-t border-slate-800/80">
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3 h-3 text-amber-400 shrink-0" /> Monitoring absensi binaan
                       </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" /> Access lecture PDF & video materials
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" /> View grades & teacher feedback
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3 h-3 text-amber-400 shrink-0" /> Rekap nilai murid binaan
                       </li>
                     </ul>
                   </div>
 
                   <button
-                    onClick={() => loginAsUser(studentUsers[0]?.id || 'usr-student-1')}
-                    className="mt-5 w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 group-hover:scale-[1.02]"
+                    onClick={() => loginAsUser(waliKelasUsers[0]?.id || 'usr-walikelas-1')}
+                    className="mt-4 w-full py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-lg shadow-amber-600/20 group-hover:scale-[1.02]"
                   >
-                    <span>Log In as Student</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>Masuk Wali Kelas</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* MURID CARD */}
+                <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-blue-500/50 transition group">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      {getRoleBadge('murid')}
+                      <span className="text-[10px] font-mono text-blue-400 font-bold">Tier 4</span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {muridUsers.slice(0, 1).map((user) => (
+                        <div key={user.id} className="flex items-center gap-2.5">
+                          <img
+                            src={user.avatar}
+                            alt={user.name}
+                            className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500/40 shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                            <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <ul className="text-[10px] text-slate-400 space-y-1 pt-2 border-t border-slate-800/80">
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3 h-3 text-blue-400 shrink-0" /> Kumpul link Google Drive
+                      </li>
+                      <li className="flex items-center gap-1.5">
+                        <Check className="w-3 h-3 text-blue-400 shrink-0" /> Self check-in absensi harian
+                      </li>
+                    </ul>
+                  </div>
+
+                  <button
+                    onClick={() => loginAsUser(muridUsers[0]?.id || 'usr-student-1')}
+                    className="mt-4 w-full py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/20 group-hover:scale-[1.02]"
+                  >
+                    <span>Masuk Murid</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
