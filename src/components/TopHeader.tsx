@@ -87,14 +87,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onToggleSidebar }) => {
               <div className="hidden sm:block">
                 <div className="flex items-center gap-2">
                   <span className="font-extrabold text-base tracking-tight bg-gradient-to-r from-indigo-600 to-sky-600 dark:from-indigo-400 dark:to-sky-400 bg-clip-text text-transparent">
-                    Apex LMS
+                    SMK Citra Negara
                   </span>
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 uppercase tracking-wider">
                     PRO
                   </span>
                 </div>
                 <div className="text-[11px] font-medium text-slate-400 dark:text-slate-500 -mt-0.5">
-                  Academic Cloud Suite
+                  Learning Management System
                 </div>
               </div>
             </div>

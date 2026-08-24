@@ -39,8 +39,8 @@ export const INITIAL_USERS: User[] = [
   },
   {
     id: 'usr-teacher-2',
-    name: 'Dr. Sarah Jenkins (Guru)',
-    email: 'sarah.j@school.edu',
+    name: 'Muhammad Daniel Nurindra S.Kom (Guru)',
+    email: 'mdn@school.edu',
     role: 'guru',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
     classIds: ['cls-web-102'],
@@ -58,8 +58,8 @@ export const INITIAL_USERS: User[] = [
   },
   {
     id: 'usr-student-1',
-    name: 'Daniel Santos (Murid)',
-    email: 'daniel.santos@student.edu',
+    name: 'Daniel Nurindra (Murid)',
+    email: 'daniel.nurindra@student.edu',
     role: 'murid',
     avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
     classIds: ['cls-pplg2-web', 'cls-golang-101', 'cls-web-102'],

@@ -87,9 +87,9 @@ const MainContent: React.FC = () => {
           {/* 4. Footer */}
           <footer className="px-4 sm:px-6 lg:px-8 py-4 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200/80 dark:border-slate-800 bg-white/50 dark:bg-[#0f172a]/50 backdrop-blur-xs flex flex-col sm:flex-row items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-700 dark:text-slate-300">Apex LMS Platform</span>
+              <span className="font-bold text-slate-700 dark:text-slate-300">SMK Citra Negara</span>
               <span>•</span>
-              <span>Academic Pro v2.5</span>
+              <span>Daniel Nurindra S.Kom</span>
             </div>
             <div>
               <span>Powered by Go 1.22 REST Engine & React</span>
