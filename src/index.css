@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --app-bg-light: #ffffff;
+    --app-bg-dark: #0f172a;
+    --card-bg-light: #ffffff;
+    --card-bg-dark: #1e293b;
+    --sidebar-bg-light: #ffffff;
+    --sidebar-bg-dark: #0f172a;
+    --header-bg: #f58220;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #1e293b;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .dark body {
+    background-color: #0b1120;
+    color: #f8fafc;
+  }
+}

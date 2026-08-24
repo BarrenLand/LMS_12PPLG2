@@ -43,17 +43,18 @@ export const TeacherAttendance: React.FC = () => {
 
   // New Session Form State
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [sessionTitle, setSessionTitle] = useState('Regular Lecture Check-In');
+  const [sessionTitle, setSessionTitle] = useState('Presensi Jam Pelajaran Reguler');
   const [sessionDate, setSessionDate] = useState(() => new Date().toISOString().split('T')[0]);
 
   // Filter sessions for selected class
   const classSessions = attendanceSessions.filter((s) => s.classId === selectedClassId);
   const activeClass = classes.find((c) => c.id === selectedClassId);
   const enrolledStudents = users.filter(
-    (u) => u.role === 'student' && activeClass?.studentIds.includes(u.id)
+    (u) => (u.role === 'student' || u.role === 'murid') && activeClass?.studentIds?.includes(u.id)
   );
 
-  const currentSession = attendanceSessions.find((s) => s.id === selectedSessionId) || classSessions[0];
+  const currentSession =
+    attendanceSessions.find((s) => s.id === selectedSessionId) || classSessions[0];
 
   const handleCreateSession = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,33 +81,37 @@ export const TeacherAttendance: React.FC = () => {
   const getStatusBadge = (status?: AttendanceStatus) => {
     switch (status) {
       case 'present':
+      case 'hadir':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Present
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-[#15312b] dark:text-[#34d399] border border-emerald-200 dark:border-[#1e463d]">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Hadir
           </span>
         );
       case 'absent':
+      case 'alfa':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
-            <XCircle className="w-3.5 h-3.5" /> Absent
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-[#331c1e] dark:text-rose-400 border border-rose-200 dark:border-rose-900/40">
+            <XCircle className="w-3.5 h-3.5" /> Alfa
           </span>
         );
       case 'late':
+      case 'izin':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-            <AlertTriangle className="w-3.5 h-3.5" /> Late
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 dark:bg-[#152a3a] dark:text-cyan-300 border border-blue-200 dark:border-blue-900/40">
+            <AlertTriangle className="w-3.5 h-3.5" /> Izin
           </span>
         );
       case 'excused':
+      case 'sakit':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">
-            <HelpCircle className="w-3.5 h-3.5" /> Excused
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 dark:bg-[#281b38] dark:text-purple-300 border border-purple-200 dark:border-purple-900/40">
+            <HelpCircle className="w-3.5 h-3.5" /> Sakit
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-            Unmarked
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500 dark:bg-[#152924] dark:text-slate-400">
+            Belum Tercatat
           </span>
         );
     }
@@ -115,14 +120,14 @@ export const TeacherAttendance: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Class Selector & Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-[#10231f] p-5 rounded-3xl border border-emerald-100 dark:border-[#1a3b34] shadow-sm">
         <div className="space-y-1">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <UserCheck className="w-5 h-5 text-emerald-600" />
-            Class Attendance Management
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <UserCheck className="w-5 h-5 text-[#10b981]" />
+            Manajemen Presensi & Sesi Mapel
           </h2>
-          <p className="text-xs text-slate-500">
-            Create attendance check-in sessions, toggle student self-attendance, and mark attendance status.
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Buat sesi absensi langsung, buka/tutup presensi mandiri siswa, atau rekam kehadiran manual.
           </p>
         </div>
 
@@ -133,7 +138,7 @@ export const TeacherAttendance: React.FC = () => {
               setSelectedClassId(e.target.value);
               setSelectedSessionId(null);
             }}
-            className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+            className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#122924] border border-slate-200 dark:border-[#1e463d] text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-[#10b981]"
           >
             {myClasses.map((c) => (
               <option key={c.id} value={c.id}>
@@ -144,9 +149,9 @@ export const TeacherAttendance: React.FC = () => {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm shrink-0 flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-[#10b981] hover:bg-[#059669] text-white text-xs font-bold transition shadow-sm shrink-0 flex items-center gap-1.5"
           >
-            <Plus className="w-4 h-4" /> New Session
+            <Plus className="w-4 h-4" /> Buat Sesi Baru
           </button>
         </div>
       </div>
@@ -154,21 +159,21 @@ export const TeacherAttendance: React.FC = () => {
       {/* Main Grid: Sessions List on Left, Student Roster on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sessions Sidebar */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+        <div className="bg-white dark:bg-[#10231f] rounded-3xl border border-emerald-100 dark:border-[#1a3b34] p-5 space-y-4">
           <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center justify-between">
-            <span>Attendance Sessions ({classSessions.length})</span>
+            <span>Daftar Sesi ({classSessions.length})</span>
             <span className="text-[10px] text-slate-400 font-mono">{activeClass?.code}</span>
           </h3>
 
           {classSessions.length === 0 ? (
-            <div className="text-center py-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-4">
+            <div className="text-center py-8 border border-dashed border-slate-200 dark:border-[#1e463d] rounded-2xl p-4">
               <Calendar className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <p className="text-xs text-slate-500">No attendance sessions created yet.</p>
+              <p className="text-xs text-slate-500">Belum ada sesi presensi dibuat.</p>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="mt-3 text-xs text-emerald-600 font-bold hover:underline"
+                className="mt-3 text-xs text-[#10b981] font-bold hover:underline"
               >
-                + Create First Session
+                + Buat Sesi Pertama
               </button>
             </div>
           ) : (
@@ -176,16 +181,18 @@ export const TeacherAttendance: React.FC = () => {
               {classSessions.map((sess) => {
                 const isSelected = currentSession?.id === sess.id;
                 const sessRecords = attendanceRecords.filter((r) => r.sessionId === sess.id);
-                const presentCount = sessRecords.filter((r) => r.status === 'present').length;
+                const presentCount = sessRecords.filter(
+                  (r) => r.status === 'present' || r.status === 'hadir'
+                ).length;
 
                 return (
                   <div
                     key={sess.id}
                     onClick={() => setSelectedSessionId(sess.id)}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition ${
+                    className={`p-3.5 rounded-2xl border cursor-pointer transition ${
                       isSelected
-                        ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-500 shadow-sm'
-                        : 'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/80 hover:border-slate-300'
+                        ? 'bg-emerald-50/80 dark:bg-[#15312b] border-[#10b981] shadow-sm'
+                        : 'bg-slate-50/60 dark:bg-[#122924] border-slate-200 dark:border-[#1e463d] hover:border-emerald-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -198,48 +205,37 @@ export const TeacherAttendance: React.FC = () => {
                           deleteAttendanceSession(sess.id);
                         }}
                         className="text-slate-400 hover:text-rose-600 p-1 rounded"
-                        title="Delete Session"
+                        title="Hapus sesi"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3 text-emerald-600" />
-                        {sess.date}
-                      </span>
-
-                      <span className="font-semibold text-slate-700 dark:text-slate-300">
-                        {presentCount} / {enrolledStudents.length} Present
+                    <div className="flex items-center justify-between mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+                      <span>{new Date(sess.date).toLocaleDateString('id-ID')}</span>
+                      <span className="font-semibold text-[#064e3b] dark:text-[#34d399]">
+                        {presentCount} Hadir
                       </span>
                     </div>
 
-                    {/* Self Check-In Status Toggle */}
-                    <div className="mt-3 pt-2 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
-                      <span className="text-[10px] text-slate-500 font-medium">
-                        Student Self Check-In:
+                    <div className="mt-2 pt-2 border-t border-slate-100 dark:border-[#1e463d] flex items-center justify-between">
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          sess.isOpen
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                        }`}
+                      >
+                        {sess.isOpen ? 'Sesi Dibuka (Live)' : 'Sesi Ditutup'}
                       </span>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleAttendanceSessionOpen(sess.id, !sess.isOpen);
+                          toggleAttendanceSessionOpen(sess.id);
                         }}
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${
-                          sess.isOpen
-                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300'
-                            : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
-                        }`}
+                        className="text-[11px] font-bold text-[#059669] dark:text-[#34d399] hover:underline"
                       >
-                        {sess.isOpen ? (
-                          <>
-                            <ToggleRight className="w-3.5 h-3.5 text-emerald-600" /> Open
-                          </>
-                        ) : (
-                          <>
-                            <ToggleLeft className="w-3.5 h-3.5 text-slate-400" /> Closed
-                          </>
-                        )}
+                        {sess.isOpen ? 'Tutup Sesi' : 'Buka Sesi'}
                       </button>
                     </div>
                   </div>
@@ -249,165 +245,131 @@ export const TeacherAttendance: React.FC = () => {
           )}
         </div>
 
-        {/* Roster & Marking Area */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-5">
+        {/* Student Roster & Live Marking on Right */}
+        <div className="lg:col-span-2 bg-white dark:bg-[#10231f] rounded-3xl border border-emerald-100 dark:border-[#1a3b34] p-5 space-y-4">
           {currentSession ? (
             <>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 gap-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-[#16332d]">
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-base font-bold text-slate-900 dark:text-white">
                       {currentSession.topic}
                     </h3>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         currentSession.isOpen
                           ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                           : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                       }`}
                     >
-                      {currentSession.isOpen ? 'Self-Check-In OPEN' : 'Self-Check-In CLOSED'}
+                      {currentSession.isOpen ? 'Status: Terbuka' : 'Status: Ditutup'}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Session Date: {currentSession.date} • Class Enrolment: {enrolledStudents.length} Students
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Tanggal Sesi: {new Date(currentSession.date).toLocaleDateString('id-ID')}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs">
-                  <button
-                    onClick={() => {
-                      enrolledStudents.forEach((st) => {
-                        markAttendance(currentSession.id, st.id, 'present', 'Bulk Marked Present');
-                      });
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 transition"
-                  >
-                    Mark All Present
-                  </button>
-                </div>
+                <button
+                  onClick={() => toggleAttendanceSessionOpen(currentSession.id)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
+                    currentSession.isOpen
+                      ? 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300'
+                      : 'bg-emerald-600 text-white'
+                  }`}
+                >
+                  {currentSession.isOpen ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                  {currentSession.isOpen ? 'Tutup Sesi Ini' : 'Buka Sesi Ini'}
+                </button>
               </div>
 
-              {/* Roster Table */}
+              {/* Student List Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200 dark:border-slate-800">
-                    <tr>
-                      <th className="p-3">Student</th>
-                      <th className="p-3">Current Status</th>
-                      <th className="p-3">Method / Notes</th>
-                      <th className="p-3 text-right">Set Status</th>
+                  <thead>
+                    <tr className="border-b border-slate-100 dark:border-[#16332d] text-slate-400 uppercase tracking-wider font-semibold">
+                      <th className="py-3 px-2">Siswa</th>
+                      <th className="py-3 px-2">Status</th>
+                      <th className="py-3 px-2 text-right">Aksi Kehadiran</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
-                    {enrolledStudents.map((student) => {
-                      const rec = getRecordForStudent(currentSession.id, student.id);
-
-                      return (
-                        <tr key={student.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
-                          <td className="p-3">
-                            <div className="flex items-center gap-2.5">
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#16332d]">
+                    {enrolledStudents.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="py-6 text-center text-slate-400">
+                          Belum ada data siswa di kelas ini.
+                        </td>
+                      </tr>
+                    ) : (
+                      enrolledStudents.map((student) => {
+                        const record = getRecordForStudent(currentSession.id, student.id);
+                        return (
+                          <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-[#122924]">
+                            <td className="py-3 px-2 flex items-center gap-2.5">
                               <img
                                 src={student.avatar}
-                                alt=""
+                                alt={student.name}
                                 className="w-7 h-7 rounded-full object-cover shrink-0"
                               />
                               <div>
-                                <p className="font-bold text-slate-900 dark:text-slate-100">
+                                <p className="font-bold text-slate-900 dark:text-white">
                                   {student.name}
                                 </p>
-                                <p className="text-[10px] text-slate-400">{student.email}</p>
+                                <p className="text-[11px] text-slate-400">{student.email}</p>
                               </div>
-                            </div>
-                          </td>
+                            </td>
 
-                          <td className="p-3">{getStatusBadge(rec?.status)}</td>
+                            <td className="py-3 px-2">
+                              {getStatusBadge(record?.status as any)}
+                            </td>
 
-                          <td className="p-3 text-slate-500 text-[11px]">
-                            {rec ? (
-                              <div>
-                                <span className="font-semibold text-slate-700 dark:text-slate-300 capitalize">
-                                  {rec.method?.replace('_', ' ')}
-                                </span>
-                                {rec.notes && <p className="text-[10px] text-slate-400 italic">{rec.notes}</p>}
+                            <td className="py-3 px-2 text-right">
+                              <div className="inline-flex items-center gap-1">
+                                <button
+                                  onClick={() =>
+                                    markAttendance(currentSession.id, student.id, 'present' as any)
+                                  }
+                                  className="px-2 py-1 rounded-lg bg-emerald-50 dark:bg-[#143029] text-[#059669] dark:text-[#34d399] font-bold text-[11px] hover:bg-emerald-100"
+                                >
+                                  Hadir
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    markAttendance(currentSession.id, student.id, 'late' as any)
+                                  }
+                                  className="px-2 py-1 rounded-lg bg-blue-50 dark:bg-[#122736] text-blue-700 dark:text-cyan-300 font-bold text-[11px] hover:bg-blue-100"
+                                >
+                                  Izin
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    markAttendance(currentSession.id, student.id, 'excused' as any)
+                                  }
+                                  className="px-2 py-1 rounded-lg bg-purple-50 dark:bg-[#201830] text-purple-700 dark:text-purple-300 font-bold text-[11px] hover:bg-purple-100"
+                                >
+                                  Sakit
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    markAttendance(currentSession.id, student.id, 'absent' as any)
+                                  }
+                                  className="px-2 py-1 rounded-lg bg-rose-50 dark:bg-[#2c181a] text-rose-700 dark:text-rose-400 font-bold text-[11px] hover:bg-rose-100"
+                                >
+                                  Alfa
+                                </button>
                               </div>
-                            ) : (
-                              <span className="italic text-slate-400">Not recorded yet</span>
-                            )}
-                          </td>
-
-                          <td className="p-3 text-right">
-                            <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                              <button
-                                onClick={() =>
-                                  markAttendance(currentSession.id, student.id, 'present', 'Teacher marked')
-                                }
-                                className={`px-2 py-1 rounded-lg text-[11px] font-bold transition ${
-                                  rec?.status === 'present'
-                                    ? 'bg-emerald-600 text-white shadow-sm'
-                                    : 'text-slate-600 dark:text-slate-300 hover:text-emerald-600'
-                                }`}
-                                title="Mark Present"
-                              >
-                                Present
-                              </button>
-                              <button
-                                onClick={() =>
-                                  markAttendance(currentSession.id, student.id, 'absent', 'Teacher marked')
-                                }
-                                className={`px-2 py-1 rounded-lg text-[11px] font-bold transition ${
-                                  rec?.status === 'absent'
-                                    ? 'bg-rose-600 text-white shadow-sm'
-                                    : 'text-slate-600 dark:text-slate-300 hover:text-rose-600'
-                                }`}
-                                title="Mark Absent"
-                              >
-                                Absent
-                              </button>
-                              <button
-                                onClick={() =>
-                                  markAttendance(currentSession.id, student.id, 'late', 'Teacher marked')
-                                }
-                                className={`px-2 py-1 rounded-lg text-[11px] font-bold transition ${
-                                  rec?.status === 'late'
-                                    ? 'bg-amber-600 text-white shadow-sm'
-                                    : 'text-slate-600 dark:text-slate-300 hover:text-amber-600'
-                                }`}
-                                title="Mark Late"
-                              >
-                                Late
-                              </button>
-                              <button
-                                onClick={() =>
-                                  markAttendance(currentSession.id, student.id, 'excused', 'Teacher marked')
-                                }
-                                className={`px-2 py-1 rounded-lg text-[11px] font-bold transition ${
-                                  rec?.status === 'excused'
-                                    ? 'bg-purple-600 text-white shadow-sm'
-                                    : 'text-slate-600 dark:text-slate-300 hover:text-purple-600'
-                                }`}
-                                title="Mark Excused"
-                              >
-                                Excused
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
             </>
           ) : (
-            <div className="text-center py-12">
-              <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                Select or Create an Attendance Session
-              </p>
-              <p className="text-xs text-slate-500 mt-1">
-                Choose a session from the left panel to record or review student check-ins.
-              </p>
+            <div className="py-12 text-center text-slate-400">
+              Pilih sesi di sebelah kiri untuk melihat dan menandai daftar hadir siswa.
             </div>
           )}
         </div>
@@ -415,61 +377,52 @@ export const TeacherAttendance: React.FC = () => {
 
       {/* CREATE SESSION MODAL */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                Create Attendance Session
-              </h3>
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-slate-600"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateSession} className="space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#10231f] rounded-3xl max-w-md w-full p-6 border border-emerald-100 dark:border-[#1a3b34] shadow-2xl space-y-4">
+            <h3 className="text-lg font-black text-slate-900 dark:text-white">
+              Buat Sesi Presensi Baru
+            </h3>
+            <form onSubmit={handleCreateSession} className="space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Session Topic / Title
+                <label className="font-bold text-slate-700 dark:text-slate-200">
+                  Topik / Nama Pertemuan
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Session 5: Golang Routines & Channels"
                   value={sessionTitle}
                   onChange={(e) => setSessionTitle(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Contoh: Pertemuan 4 - Routing dan Middleware"
+                  className="w-full mt-1.5 p-3 rounded-xl bg-slate-50 dark:bg-[#122924] border border-slate-200 dark:border-[#1e463d] text-slate-900 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Session Date
+                <label className="font-bold text-slate-700 dark:text-slate-200">
+                  Tanggal Presensi
                 </label>
                 <input
                   type="date"
                   required
                   value={sessionDate}
                   onChange={(e) => setSessionDate(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                  className="w-full mt-1.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#122924] border border-slate-200 dark:border-[#1e463d] text-slate-900 dark:text-white"
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-[#16332d]">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300"
+                  className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-[#152e28]"
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-500/20"
+                  className="px-4 py-2 rounded-xl bg-[#10b981] hover:bg-[#059669] text-white font-bold shadow-sm"
                 >
-                  Start Attendance Session
+                  Simpan & Buka Sesi
                 </button>
               </div>
             </form>

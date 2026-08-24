@@ -13,25 +13,45 @@ app.use(express.json());
 
 // MongoDB Connection Setup
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/lms_db';
-let isMongoConnected = false;
+let isConnecting = false;
 let mongoError: string | null = null;
 
+const isMongoConnected = () => mongoose.connection.readyState === 1;
+
 async function connectMongoDB() {
+  if (isMongoConnected()) {
+    return true;
+  }
+  if (isConnecting || mongoose.connection.readyState === 2) {
+    return false;
+  }
+  isConnecting = true;
   try {
     await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 3000,
+      serverSelectionTimeoutMS: 2000,
+      connectTimeoutMS: 2000,
     });
-    isMongoConnected = true;
     mongoError = null;
+    isConnecting = false;
     console.log('MongoDB connected successfully at', MONGODB_URI);
+    return true;
   } catch (err: any) {
-    isMongoConnected = false;
+    isConnecting = false;
     mongoError = err?.message || 'Failed to connect to MongoDB';
-    console.warn('MongoDB Connection Warning:', mongoError);
+    console.warn('MongoDB Connection Note:', mongoError);
+    return false;
   }
 }
 
-connectMongoDB();
+// Initial connection attempt (safe asynchronous non-blocking)
+connectMongoDB().catch(() => {});
+
+mongoose.connection.on('connected', () => {
+  mongoError = null;
+});
+mongoose.connection.on('error', (err) => {
+  mongoError = err?.message || 'MongoDB error';
+});
 
 // Mongoose Schemas & Models
 const userSchema = new mongoose.Schema({
@@ -143,33 +163,36 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    mongoConnected: isMongoConnected,
+    mongoConnected: isMongoConnected(),
   });
 });
 
 app.get('/api/mongodb/status', async (req, res) => {
-  if (!isMongoConnected) {
-    // Retry connection
-    await connectMongoDB();
-  }
-
   let counts = { users: 0, classes: 0, sessions: 0, records: 0, tasks: 0 };
-  if (isMongoConnected) {
+  
+  if (isMongoConnected()) {
     try {
+      const [usersCount, classesCount, sessionsCount, recordsCount, tasksCount] = await Promise.all([
+        UserModel.countDocuments().catch(() => 0),
+        ClassModel.countDocuments().catch(() => 0),
+        AttendanceSessionModel.countDocuments().catch(() => 0),
+        AttendanceRecordModel.countDocuments().catch(() => 0),
+        TaskModel.countDocuments().catch(() => 0),
+      ]);
       counts = {
-        users: await UserModel.countDocuments(),
-        classes: await ClassModel.countDocuments(),
-        sessions: await AttendanceSessionModel.countDocuments(),
-        records: await AttendanceRecordModel.countDocuments(),
-        tasks: await TaskModel.countDocuments(),
+        users: usersCount,
+        classes: classesCount,
+        sessions: sessionsCount,
+        records: recordsCount,
+        tasks: tasksCount,
       };
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.warn('Error reading MongoDB document counts:', err?.message);
     }
   }
 
   res.json({
-    connected: isMongoConnected,
+    connected: isMongoConnected(),
     uri: MONGODB_URI.replace(/\/\/.*@/, '//***:***@'),
     error: mongoError,
     counts,
@@ -178,7 +201,7 @@ app.get('/api/mongodb/status', async (req, res) => {
 
 // Seed API endpoint
 app.post('/api/seed', async (req, res) => {
-  if (!isMongoConnected) {
+  if (!isMongoConnected()) {
     return res.status(503).json({ error: 'MongoDB not connected. Check MONGODB_URI.' });
   }
 
@@ -209,7 +232,7 @@ app.post('/api/seed', async (req, res) => {
 
 // API Routes for Users
 app.get('/api/users', async (req, res) => {
-  if (!isMongoConnected) return res.status(503).json({ error: 'MongoDB offline' });
+  if (!isMongoConnected()) return res.status(503).json({ error: 'MongoDB offline' });
   try {
     const users = await UserModel.find();
     res.json(users);
@@ -219,7 +242,7 @@ app.get('/api/users', async (req, res) => {
 });
 
 app.post('/api/users', async (req, res) => {
-  if (!isMongoConnected) return res.status(503).json({ error: 'MongoDB offline' });
+  if (!isMongoConnected()) return res.status(503).json({ error: 'MongoDB offline' });
   try {
     const newUser = new UserModel(req.body);
     await newUser.save();
@@ -230,7 +253,7 @@ app.post('/api/users', async (req, res) => {
 });
 
 app.put('/api/users/:id', async (req, res) => {
-  if (!isMongoConnected) return res.status(503).json({ error: 'MongoDB offline' });
+  if (!isMongoConnected()) return res.status(503).json({ error: 'MongoDB offline' });
   try {
     const updated = await UserModel.findOneAndUpdate({ id: req.params.id }, req.body, { new: true });
     res.json(updated);
@@ -240,7 +263,7 @@ app.put('/api/users/:id', async (req, res) => {
 });
 
 app.delete('/api/users/:id', async (req, res) => {
-  if (!isMongoConnected) return res.status(503).json({ error: 'MongoDB offline' });
+  if (!isMongoConnected()) return res.status(503).json({ error: 'MongoDB offline' });
   try {
     await UserModel.deleteOne({ id: req.params.id });
     res.json({ success: true });
@@ -251,7 +274,7 @@ app.delete('/api/users/:id', async (req, res) => {
 
 // API Routes for Classes
 app.get('/api/classes', async (req, res) => {
-  if (!isMongoConnected) return res.status(503).json({ error: 'MongoDB offline' });
+  if (!isMongoConnected()) return res.status(503).json({ error: 'MongoDB offline' });
   try {
     const classes = await ClassModel.find();
     res.json(classes);
@@ -261,7 +284,7 @@ app.get('/api/classes', async (req, res) => {
 });
 
 app.post('/api/classes', async (req, res) => {
-  if (!isMongoConnected) return res.status(503).json({ error: 'MongoDB offline' });
+  if (!isMongoConnected()) return res.status(503).json({ error: 'MongoDB offline' });
   try {
     const newClass = new ClassModel(req.body);
     await newClass.save();
@@ -269,6 +292,18 @@ app.post('/api/classes', async (req, res) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Database Error Fallback Middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err?.name === 'MongooseError' || err?.name === 'MongoNetworkError' || err?.message?.includes('buffering timed out')) {
+    console.warn('[Server] Database offline — returning mock fallback response');
+    if (req.method === 'GET') {
+      return res.json(req.path.endsWith('s') || req.path.endsWith('s/') ? [] : {});
+    }
+    return res.status(503).json({ error: 'Service temporarily unavailable (database offline)' });
+  }
+  next(err);
 });
 
 // Start Server & Vite Setup

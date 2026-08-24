@@ -2,11 +2,29 @@ import { User, Class, StudyMaterial, Task, TaskSubmission, ForumPost } from '../
 
 export const INITIAL_USERS: User[] = [
   {
-    id: 'usr-admin-1',
-    name: 'Alex Rivera (System Admin)',
-    email: 'admin@school.edu',
-    role: 'admin',
+    id: 'usr-student-daniel',
+    name: 'Muhammad Daniel Nurindra',
+    email: 'muhammad.daniel14631@guru.smp.belajar.id',
+    role: 'murid',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    classIds: ['cls-pplg2-web', 'cls-golang-101', 'cls-web-102'],
+    createdAt: '2026-01-08T08:00:00Z',
+  },
+  {
+    id: 'usr-teacher-daniel',
+    name: 'Muhammad Daniel Nurindra, S.Kom. (Dosen/Guru)',
+    email: 'daniel.dosen@nusamandiri.ac.id',
+    role: 'guru',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    classIds: ['cls-pplg2-web', 'cls-mplb3-jp'],
+    createdAt: '2026-01-08T08:00:00Z',
+  },
+  {
+    id: 'usr-admin-1',
+    name: 'Admin Citra Negara',
+    email: 'admin@citranegara.sch.id',
+    role: 'admin',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     classIds: [],
     createdAt: '2026-01-10T08:00:00Z',
   },
@@ -15,7 +33,7 @@ export const INITIAL_USERS: User[] = [
     name: 'Prof. Robert Chen (Guru)',
     email: 'robert.chen@school.edu',
     role: 'guru',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
     classIds: ['cls-golang-101', 'cls-db-201'],
     createdAt: '2026-01-12T09:00:00Z',
   },
@@ -30,12 +48,12 @@ export const INITIAL_USERS: User[] = [
   },
   {
     id: 'usr-walikelas-1',
-    name: 'Drs. Budi Santoso (Wali Kelas CS-GO101)',
-    email: 'budi.santoso@school.edu',
+    name: 'Drs. Budi Santoso (Wali Kelas XII PPLG 2)',
+    email: 'budi.santoso@citranegara.sch.id',
     role: 'wali_kelas',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
-    classIds: ['cls-golang-101'],
-    homeroomClassId: 'cls-golang-101',
+    classIds: ['cls-pplg2-web'],
+    homeroomClassId: 'cls-pplg2-web',
     createdAt: '2026-01-16T08:00:00Z',
   },
   {
@@ -44,7 +62,7 @@ export const INITIAL_USERS: User[] = [
     email: 'daniel.santos@student.edu',
     role: 'murid',
     avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-    classIds: ['cls-golang-101', 'cls-web-102'],
+    classIds: ['cls-pplg2-web', 'cls-golang-101', 'cls-web-102'],
     createdAt: '2026-02-01T11:00:00Z',
   },
   {
@@ -53,7 +71,7 @@ export const INITIAL_USERS: User[] = [
     email: 'maya.lin@student.edu',
     role: 'murid',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    classIds: ['cls-golang-101', 'cls-db-201'],
+    classIds: ['cls-pplg2-web', 'cls-mplb3-jp'],
     createdAt: '2026-02-02T12:00:00Z',
   },
   {
@@ -62,12 +80,30 @@ export const INITIAL_USERS: User[] = [
     email: 'ahmad.fauzi@student.edu',
     role: 'murid',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    classIds: ['cls-golang-101', 'cls-web-102'],
+    classIds: ['cls-pplg2-web', 'cls-mplb3-jp'],
     createdAt: '2026-02-03T14:00:00Z',
   }
 ];
 
 export const INITIAL_CLASSES: Class[] = [
+  {
+    id: 'cls-pplg2-web',
+    name: 'Pemrograman Web (XII PPLG 2)',
+    code: 'XII-PPLG-2',
+    teacherId: 'usr-teacher-daniel',
+    description: 'Melanjutkan LMS dan Proyek Figma - Senin 10:15-12:00',
+    studentIds: ['usr-student-1', 'usr-student-2', 'usr-student-3'],
+    createdAt: '2026-01-05T08:00:00Z',
+  },
+  {
+    id: 'cls-mplb3-jp',
+    name: 'Bahasa Jepang (X MPLB 3)',
+    code: 'X-MPLB-3',
+    teacherId: 'usr-teacher-daniel',
+    description: 'Pembelajaran Bahasa Jepang Dasar, Tata Bahasa dan Percakapan',
+    studentIds: ['usr-student-2', 'usr-student-3'],
+    createdAt: '2026-01-06T08:00:00Z',
+  },
   {
     id: 'cls-golang-101',
     name: 'Golang Backend Architecture',

@@ -22,7 +22,15 @@ export interface Class {
   createdAt: string;
 }
 
-export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
+export type AttendanceStatus =
+  | 'present'
+  | 'absent'
+  | 'late'
+  | 'excused'
+  | 'hadir'
+  | 'izin'
+  | 'sakit'
+  | 'alfa';
 
 export interface AttendanceRecord {
   id: string;

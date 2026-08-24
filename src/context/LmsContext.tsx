@@ -39,6 +39,11 @@ interface LmsContextType {
   selectedClassId: string;
   setSelectedClassId: (classId: string) => void;
 
+  // Theme (Light / Dark Mode)
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+  setTheme: (theme: 'light' | 'dark') => void;
+
   // MongoDB Status & Sync
   mongoStatus: { connected: boolean; uri?: string; counts?: any; error?: string };
   syncWithMongoDB: () => Promise<void>;
@@ -52,6 +57,20 @@ interface LmsContextType {
   addUser: (user: Omit<User, 'id' | 'createdAt'>) => void;
   editUser: (user: User) => void;
   deleteUser: (userId: string) => void;
+
+  // Inactivity & Auto-Logout Warning State & Actions
+  inactivityTimeoutMinutes: number;
+  setInactivityTimeoutMinutes: (minutes: number) => void;
+  isWarningModalOpen: boolean;
+  setIsWarningModalOpen: (open: boolean) => void;
+  warningRemainingSeconds: number;
+  extendSession: () => void;
+  triggerAutoLogoutWarningTest: () => void;
+  sessionNotice: string | null;
+  setSessionNotice: (notice: string | null) => void;
+  sessionExtendedToast: string | null;
+  lastActiveTime: number;
+  recordActivity: () => void;
 
   // Class Actions (Admin)
   addClass: (cls: Omit<Class, 'id' | 'createdAt'>) => void;
@@ -121,6 +140,120 @@ export const LmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved !== null ? saved === 'true' : true;
   });
 
+  // Inactivity & Auto-Logout State
+  const [inactivityTimeoutMinutes, setInactivityTimeoutMinutesState] = useState<number>(() => {
+    const saved = localStorage.getItem(`${STORAGE_KEY}_inactivity_timeout`);
+    return saved ? Math.max(1, Number(saved)) : 5; // Default 5 minutes
+  });
+
+  const [isWarningModalOpen, setIsWarningModalOpen] = useState<boolean>(false);
+  const [warningRemainingSeconds, setWarningRemainingSeconds] = useState<number>(60);
+  const [sessionNotice, setSessionNotice] = useState<string | null>(null);
+  const [sessionExtendedToast, setSessionExtendedToast] = useState<string | null>(null);
+  const [lastActiveTime, setLastActiveTime] = useState<number>(() => Date.now());
+
+  const setInactivityTimeoutMinutes = (mins: number) => {
+    const safeMins = Math.max(1, mins);
+    setInactivityTimeoutMinutesState(safeMins);
+    localStorage.setItem(`${STORAGE_KEY}_inactivity_timeout`, String(safeMins));
+  };
+
+  // Record user activity
+  const recordActivity = () => {
+    // If warning modal is already open, do not silently close it with passive background mouse moves,
+    // require user to explicitly press "Extend Session" or Enter.
+    if (!isWarningModalOpen) {
+      setLastActiveTime(Date.now());
+    }
+  };
+
+  // Extend Session Action
+  const extendSession = () => {
+    setLastActiveTime(Date.now());
+    setIsWarningModalOpen(false);
+    setWarningRemainingSeconds(60);
+    setSessionExtendedToast(`Sesi berhasil diperpanjang (+${inactivityTimeoutMinutes} menit aktivitas).`);
+    setTimeout(() => {
+      setSessionExtendedToast(null);
+    }, 4000);
+  };
+
+  // Test Auto-Logout Warning Trigger
+  const triggerAutoLogoutWarningTest = () => {
+    setWarningRemainingSeconds(60);
+    setIsWarningModalOpen(true);
+  };
+
+  // Inactivity Listeners (Mouse, Keyboard, Touch, Scroll)
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    let lastRecord = Date.now();
+    const handleUserActivity = () => {
+      const now = Date.now();
+      // Throttle activity updates to once every 2 seconds for performance
+      if (now - lastRecord > 2000) {
+        lastRecord = now;
+        recordActivity();
+      }
+    };
+
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'];
+    events.forEach((evt) => {
+      window.addEventListener(evt, handleUserActivity, { passive: true });
+    });
+
+    return () => {
+      events.forEach((evt) => {
+        window.removeEventListener(evt, handleUserActivity);
+      });
+    };
+  }, [isLoggedIn, isWarningModalOpen]);
+
+  // Master Inactivity Interval Engine
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setIsWarningModalOpen(false);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const elapsedMs = now - lastActiveTime;
+      const totalTimeoutMs = inactivityTimeoutMinutes * 60 * 1000;
+      
+      // Calculate when warning should trigger:
+      // For timeouts >= 2 mins, warn 60s before.
+      // For 1 min timeout, warn 30s before.
+      const warningBufferMs = inactivityTimeoutMinutes <= 1 ? 30000 : 60000;
+      const warningThresholdMs = Math.max(10000, totalTimeoutMs - warningBufferMs);
+
+      if (!isWarningModalOpen) {
+        if (elapsedMs >= warningThresholdMs) {
+          const remainingSec = Math.max(1, Math.ceil((totalTimeoutMs - elapsedMs) / 1000));
+          setWarningRemainingSeconds(remainingSec);
+          setIsWarningModalOpen(true);
+        }
+      } else {
+        // Warning modal is open -> count down seconds
+        setWarningRemainingSeconds((prev) => {
+          if (prev <= 1) {
+            // Auto logout triggered!
+            setIsLoggedIn(false);
+            setIsWarningModalOpen(false);
+            setSessionNotice(
+              `Sesi Anda telah berakhir secara otomatis karena tidak ada aktivitas selama ${inactivityTimeoutMinutes} menit. Silakan masuk kembali untuk melanjutkan.`
+            );
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isLoggedIn, isWarningModalOpen, lastActiveTime, inactivityTimeoutMinutes]);
+
   const [classes, setClasses] = useState<Class[]>(() => {
     const saved = localStorage.getItem(`${STORAGE_KEY}_classes`);
     return saved ? JSON.parse(saved) : INITIAL_CLASSES;
@@ -158,6 +291,33 @@ export const LmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [selectedClassId, setSelectedClassId] = useState<string>('all');
+
+  const [theme, setThemeState] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('citra_lms_theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    // Check system preference
+    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('citra_lms_theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setThemeState((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  const setTheme = (newTheme: 'light' | 'dark') => {
+    setThemeState(newTheme);
+  };
 
   const [mongoStatus, setMongoStatus] = useState<{
     connected: boolean;
@@ -269,6 +429,9 @@ export const LmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (found) {
       setCurrentUser(found);
       setIsLoggedIn(true);
+      setLastActiveTime(Date.now());
+      setIsWarningModalOpen(false);
+      setSessionNotice(null);
       return { success: true };
     }
     return {
@@ -282,11 +445,15 @@ export const LmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (found) {
       setCurrentUser(found);
       setIsLoggedIn(true);
+      setLastActiveTime(Date.now());
+      setIsWarningModalOpen(false);
+      setSessionNotice(null);
     }
   };
 
   const logout = () => {
     setIsLoggedIn(false);
+    setIsWarningModalOpen(false);
   };
 
   const switchUser = (userId: string) => {
@@ -607,6 +774,9 @@ export const LmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setActiveTab,
         selectedClassId,
         setSelectedClassId,
+        theme,
+        toggleTheme,
+        setTheme,
         mongoStatus,
         syncWithMongoDB,
         seedMongoDB,
@@ -617,6 +787,18 @@ export const LmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addUser,
         editUser,
         deleteUser,
+        inactivityTimeoutMinutes,
+        setInactivityTimeoutMinutes,
+        isWarningModalOpen,
+        setIsWarningModalOpen,
+        warningRemainingSeconds,
+        extendSession,
+        triggerAutoLogoutWarningTest,
+        sessionNotice,
+        setSessionNotice,
+        sessionExtendedToast,
+        lastActiveTime,
+        recordActivity,
         addClass,
         editClass,
         deleteClass,
