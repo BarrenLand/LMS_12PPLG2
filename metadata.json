@@ -1,5 +1,5 @@
 {
-  "name": "Apex Modern LMS Platform",
+  "name": "LMS SMK Citra Negara",
   "description": "Comprehensive next-generation Learning Management System with role-based dashboards (Teacher, Student, Wali Kelas, Admin), live attendance sessions, Google Drive submissions & grading, course syllabus, weekly schedule, gradebook, and Golang backend exporter.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
