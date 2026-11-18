@@ -105,7 +105,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onToggleSidebar }) => {
               <span className="font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
                 Ganjil 2025/2026
               </span>
-              <span className="text-slate-400 whitespace-nowrap">• Pekan Ke-8</span>
+              <span className="text-slate-400 whitespace-nowrap">• Pekan Ke-12</span>
             </div>
           </div>
 
